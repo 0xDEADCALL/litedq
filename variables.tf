@@ -28,6 +28,12 @@ variable "timeout" {
   default = 2880
 }
 
+variable "job_schedule" {
+  type = string
+  nullable = true
+  default = null
+}
+
 // S3 Variables
 variable "code_repo_bucket" {
   type = string
@@ -69,4 +75,48 @@ variable "code_path" {
 }
 variable "questions_path" {
   type = string
+}
+
+// VPC Variables
+variable "vpc_name" {
+  type = string
+}
+variable "vpc_cidr" {
+  default = "10.0.0.0/26"
+}
+
+variable "public_subnets_cidrs" {
+  type = list(string)
+  default = [ "10.0.0.0/28", "10.0.0.16/28"]
+}
+
+variable "private_subnets_cidrs" {  
+  type = list(string)
+  default = [ "10.0.0.32/28", "10.0.0.48/28" ]
+}
+
+variable "azs" {
+  type = list(string)
+  default = [ "eu-west-1a", "eu-west-1b"]
+}
+
+// Variables for litedq-dash
+variable "dash_port" {
+  type = number
+  default = 80
+}
+
+variable "dash_cpu" {
+  type = number
+  default = 256
+}
+
+variable "dash_memory" {
+  type = number
+  default = 512
+}
+
+variable "dash_service_count" {
+  type = number
+  default = 1
 }

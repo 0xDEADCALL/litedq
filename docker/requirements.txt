@@ -1,0 +1,6 @@
+pandas
+plotly
+fuzzywuzzy
+streamlit
+awswrangler
+python-Levenshtein
