@@ -1,6 +1,6 @@
 locals {
   registry_id  = replace(data.aws_ecr_authorization_token.token.proxy_endpoint, "/^https?:///", "")
-  dash_context = "${path.module}/docker"
+  dash_context = var.dash_docker_context == null ? "${path.module}/docker" : var.dash_docker_context
   
   # Compute compound hash for each file in docker
   dash_hash    = sha1(join("", [for f in fileset(local.dash_context, "**") : filesha1("${local.dash_context}/${f}")]))

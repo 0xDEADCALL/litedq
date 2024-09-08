@@ -120,3 +120,9 @@ variable "dash_service_count" {
   type = number
   default = 1
 }
+
+// Dashboard
+variable "dash_docker_context" {
+  type = string
+  default = null
+}

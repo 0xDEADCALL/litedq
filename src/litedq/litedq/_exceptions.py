@@ -58,3 +58,32 @@ class DataIsNotDataframe(Exception):
 
     def __init__(self, data: any):
         super().__init__(f"{type(data)} is not a valid input parameter")
+
+
+class InvalidDataframeFormat(Exception):
+    """
+    Raised when the provided subject data is not a valid dataframe or None
+    """
+
+    def __init__(self, data: any):
+        super().__init__(f"{type(data)} is an invalid dataframe format")
+
+class InvalidDataframeFormat(Exception):
+    """
+    Raised when the provided data for a given question
+    is not a dataframe
+    """
+
+    def __init__(self, data: any):
+        super().__init__(f"{type(data)} is an invalid dataframe format")
+
+class returnIsNotSubject(Exception):
+    """
+    Raised when the provided data for a given question
+    is not a dataframe
+    """
+
+    def __init__(self, f: any):
+        super().__init__(f"{f.__name__} doesn't return a \"Subject\" object")
+
+

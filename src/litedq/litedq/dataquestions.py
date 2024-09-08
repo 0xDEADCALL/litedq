@@ -1,11 +1,14 @@
 # Aux
 import json
+import inspect
+
 from datetime import datetime as dt
 from uuid import uuid4
 
 from pyspark.sql import SparkSession
 
 from .applicationhandler import ApplicationHanler
+from .subject import Subject
 from ._const import OUTPUT_SCHEMA
 from ._exceptions import *
 from ._types import *
@@ -70,16 +73,21 @@ class DataQuestions(metaclass=MetaDataQuestions):
 
         for id, qst in cls.questions.items():
             for app in qst.app_handler:
-                exec = qst.func(**app.data)
+                appl = qst.func(**app.data)
 
+                # Check return type
+                if not isinstance(appl, Subject):
+                    raise returnIsNotSubject(qst.func)
+
+                # Go ahead with the computation
                 results.append(
                     dict(
                         exec_id=str(uuid4()),
                         exec_dt=exec_dt,
                         question_id=id,
                         question_desc=qst.desc,
-                        subject=exec[0],
-                        result=exec[1],
+                        subject=appl.data,
+                        result=appl.result,
                         metadata=json.dumps(app.metadata or "{}"),
                     )
                 )
