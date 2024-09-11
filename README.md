@@ -15,7 +15,7 @@ both complex and simple logic checks that aim at monitoring the health of your d
 The tool is based on the concept of **Questions**, **Subjects** and **Applications**.
 * **Question**: a small unit of code represting the operations needed to perform an arbitrary check over a given asset and table.
 * **Subject**: the minimum representation of data over which the check is applied coupled with the global result of the check.
-* **Application**: A question and its subject can be reused across different assets, tables or columns, the execution of the same check over different inputsreceives the name of application.
+* **Application**: A question and its subject can be reused across different assets, tables or columns, thus the execution of the same check over different inputs receives the name of application.
 
 >[!TIP]
 > Keep in mind that while using generelized checks is encouraged for a healthier code base, one shouldn't force the over-generalization of a question if there isn't a need for it, thus questions designed for a single application is fine as well.
@@ -30,14 +30,74 @@ To be able to deploy the infrastructure the developer we'll need to have a basic
 
 ## Usage
 
-### Question Definition
-TBD
-
-### Question Application
-TBD
+The Terraform module is built around a small python package that streamlines data quality checks definition and maintainance
+by implementing the concepts described above. 
+In order to avoid complex wrappers and structures, litedq only enforces the user the definition of three main aspects: an entrypoint for the custom logic, the checks definition as python functions and an _explicit_ application of those functions to a dataframe like type.
 
 ### Entrypoint
-TBD
+The entrypoint of the will act as the first custom logic defined by the user that will be executed by the deployed Glue job. In order to take care of  of the bootstrapping, litedq requires the partial implementation of the `Executor` class which needs to implement the `ask` method:
+
+```python
+from bootstrap import BaseExecutor
+
+class Executor(BaseExecutor):
+    def ask(self):
+        """
+        Custom logic and applications
+        """
+```
+
+In order to define it, a parent class `BaseExecutor` is provided and made available as dependency in the deployment stage through the internal `bootstrap` package.
+
+
+### Question Definition
+Defining questions or checks translates in its most basic form to defining a function in python inside an arbitrary pseudo-package which we'll call
+_respository_. However, for litedq to manage these functions they need to defined in a specific way, a simple implementation would look like the following:
+```python
+from litedq import Subject, DataQuestions as dq
+
+@dq.register("check_unique_id", "Detailed check description")
+def check(accounts_df, spark):
+    """
+    Custom logic to retrieve a boolean result and a subject in dataframe form
+    """
+    return Subject(result, df)
+```
+
+In the above sample we can observe the following elements:
+* an import of the `Subject` and `DataQuestions` class.
+* a function decorated with the `register` method from `DataQuestions` with a unique string id per check and a free text description of what is being done by the function.
+    * The function can specify any number and type of arguments needed by the check (in this case, the dataframe and a spark session)
+* a mandatory return of a `Subject` instance using as arguments the boolean result and an optional dataframe like object with the relevant calculations.
+
+Every question needs to follow the same structure in order be executed by litedq, reusing ids, name functions and not returning the appropiate type
+will raise an exception.
+
+
+### Question Application
+Finally, once we've defined the questions we can apply them to different data assets in the entrypoint. While the questions can be inside any module, even the entrypoint, in order to simplify code readability litedq will make available your definitions through the `questions` package start import.
+Using as an example the previous check, the entrypoint would have the following pseudo-implementation: 
+```python
+from bootstrap import BaseExecutor
+from questions import *
+
+from litedq import DataQuestions as dq
+
+# Other imports...
+
+class Executor(BaseExecutor):
+    def ask(self):
+        """
+        Custom logic and applications
+        """
+
+        # Apply check to accounts_df
+        dq["check_unique_id"].apply(accounts_df=accounts_df, spark=spark)
+```
+
+>[!WARNING]
+> Note that the arguments for the check are specified by their name, this is required to properly map the parameters needed by your check
+
 
 ### Deployment
 #### Project Structure
