@@ -100,11 +100,24 @@ class Executor(BaseExecutor):
 
 
 ### Deployment
-#### Project Structure
-TBD
 
 #### Variables
-TBD
+| **Variable**            	| **Sample Vale** 	| **Description**                                             	|
+|-------------------------	|-----------------	|-------------------------------------------------------------	|
+| **job_name**            	| dq-data-logger  	| Name of the Glue job                                        	|
+| **code_repo_bucket**    	| aws-glue-assets 	| Bucket where the logic will be stored for Glue              	|
+| **code_path**           	| ./main.py       	| Path where the entrypoint logic is stored                   	|
+| **questions_path**      	| ./questions     	| Path where the questions folder is located                  	|
+| **target_bucket**       	| aws-data-logger 	| Bucket where the results will be stored                     	|
+| **target_database**     	| dataloggger     	| Database name for the results will b stored                 	|
+| **target_table**        	| logs            	| Table name where the results will be stored                 	|
+| **write_mode**          	| append          	| Write mode for the results (can be "append" or "overwrite") 	|
+| **dry_run**             	| false           	| Whether to write the results or not                         	|
+| **vpc_name**            	| litedqp-vpc     	| Name of then VPC to be created by the module                	|
+| **dash_docker_context** 	|                 	| Context path to use for custom frontend deployment     
+
+> [!NOTE]
+> If the buckets and database don't exists the blueprint will create them you.
 
 ### Practical Example
 First of all, create a new project folder or Git repository and retrieve your AWS credentials to be able to deploy using Terraform. Considering the newly created folder as your working directory:
@@ -192,17 +205,12 @@ class Executor(BaseExecutor):
         # accounts_df = spark.sqk("SELECT * FROM yourdatabase.accounts")
       
         # Apply the check you've defined previously using the "ID"
-        dq["check_countries_df"].apply(accounts_df=accounts_df, spark=self.spark)
-
 ```
-
-5. Run `terraform apply` and accept the changes.
-6. Visit the link provided as output to test the dashboard.
-
 
 ## Technical Implementation
 
 ![](docs/assets/infra_diagram.png)
 
-TBD
+The main logic will be run in a Glue job outputing the resulsts in the specified bucekt `target_bucket` where a database will be created
+for querying through Athena. Later this will be used to deploy a basic dashboaard with the metrics collected from the given database where the litedq module will create the necessary infrastructure for you to deploy a streamlit based dashboard by default (note that any custom webapp can be deploted as long its defined as a docker image by specifying the proper docker context using the `docker_dash_context` variable).
 
