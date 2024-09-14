@@ -102,20 +102,21 @@ class Executor(BaseExecutor):
 ### Deployment
 
 #### Variables
-| **Variable**            	| **Sample Vale** 	| **Description**                                             	|
-|-------------------------	|-----------------	|-------------------------------------------------------------	|
-| **job_name**            	| dq-data-logger  	| Name of the Glue job                                        	|
-| **code_repo_bucket**    	| aws-glue-assets 	| Bucket where the logic will be stored for Glue              	|
-| **code_path**           	| ./main.py       	| Path where the entrypoint logic is stored                   	|
-| **questions_path**      	| ./questions     	| Path where the questions folder is located                  	|
-| **target_bucket**       	| aws-data-logger 	| Bucket where the results will be stored                     	|
-| **target_database**     	| dataloggger     	| Database name for the results will b stored                 	|
-| **target_table**        	| logs            	| Table name where the results will be stored                 	|
-| **write_mode**          	| append          	| Write mode for the results (can be "append" or "overwrite") 	|
-| **dry_run**             	| false           	| Whether to write the results or not                         	|
-| **vpc_name**            	| litedqp-vpc     	| Name of then VPC to be created by the module                	|
-| **dash_docker_context** 	|                 	| Context path to use for custom frontend deployment     
-
+| **Variable**            	| **Sample Vale** 	  | **Description**                                             	|
+|-------------------------	|-----------------	  |-------------------------------------------------------------	|
+| **job_name**            	| dq-data-logger  	  | Name of the Glue job                                        	|
+| **code_repo_bucket**    	| aws-glue-assets 	  | Bucket where the logic will be stored for Glue              	|
+| **code_path**           	| ./main.py       	  | Path where the entrypoint logic is stored                   	|
+| **questions_path**      	| ./questions     	  | Path where the questions folder is located                  	|
+| **target_bucket**       	| aws-data-logger 	  | Bucket where the results will be stored                     	|
+| **target_database**     	| dataloggger     	  | Database name for the results will b stored                 	|
+| **target_table**        	| logs            	  | Table name where the results will be stored                 	|
+| **write_mode**          	| append          	  | Write mode for the results (can be "append" or "overwrite") 	|
+| **dry_run**             	| false           	  | Whether to write the results or not                         	|
+| **vpc_name**            	| litedqp-vpc     	  | Name of then VPC to be created by the module                	|
+| **dash_docker_context** 	| ./docket         	  | Context path to use for custom frontend deployment              |
+| **job_schedule** 	        | cron(15 13 ? * * *) | When the Glue job will be executed                              |
+ 
 > [!NOTE]
 > If the buckets and database don't exists the blueprint will create them you.
 
@@ -211,6 +212,6 @@ class Executor(BaseExecutor):
 
 ![](docs/assets/infra_diagram.png)
 
-The main logic will be run in a Glue job outputing the resulsts in the specified bucekt `target_bucket` where a database will be created
-for querying through Athena. Later this will be used to deploy a basic dashboaard with the metrics collected from the given database where the litedq module will create the necessary infrastructure for you to deploy a streamlit based dashboard by default (note that any custom webapp can be deploted as long its defined as a docker image by specifying the proper docker context using the `docker_dash_context` variable).
-
+The tool can be divided in two main blocks:
+* **Processing Block**: it's mainly composed by the Glue job responsible for performing the logic defined by the developer and the time based scheduler.
+* **Dashboard Block**: the default behaviour of the tool will be to deplot a simple streamlit based dashboard using ECS over Fargate as a service. For security reasons, a VPC is deployed with two private and two public subnets. The Fargate tasks are deployed inside the private subnets and outbound connections are allowed through a NAT that resides in one of the public subnets. The entrypoint for the user is an ALB deployed in the public subnets.
