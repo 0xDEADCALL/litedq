@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/LiteDQ.png">
+  <img src="docs/assets/LiteDQ.svg">
 </p>
 
 # Description
