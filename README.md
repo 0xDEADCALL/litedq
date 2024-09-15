@@ -18,7 +18,7 @@ The tool is based on the concept of **Questions**, **Subjects** and **Applicatio
 * **Application**: A question and its subject can be reused across different assets, tables or columns, thus the execution of the same check over different inputs receives the name of application.
 
 >[!TIP]
-> Keep in mind that while using generelized checks is encouraged for a healthier code base, one shouldn't force the over-generalization of a question if there isn't a need for it, thus questions designed for a single application is fine as well.
+> Keep in mind that while using generelized checks is encouraged for a healthier code base, one shouldn't force the over-generalization of a question if there isn't a need for it, thus questions designed for a single application are fine as well.
 
 ## Requirements
 
